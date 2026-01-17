@@ -1,9 +1,12 @@
-use crate::assets::JOHNNY;
+use crate::banner;
+
 use crossterm::event::{KeyCode, KeyEvent};
 use ratatui::{
     prelude::*,
     widgets::{Block, Borders, Paragraph},
 };
+
+use crate::home_layout;
 
 #[derive(Debug, PartialEq, Clone, Copy)]
 pub enum CurrentScreen {
@@ -12,8 +15,8 @@ pub enum CurrentScreen {
     Repository,
 }
 
-pub const HOME_MENU_OPTIONS: [&str; 4] = ["Open", "Clone", "Recent Repositories", "Exit"];
-
+pub const HOME_MENU_OPTIONS: [&str; 4] =
+    ["Open Repository", "Clone Repository", "Settings", "Exit"];
 pub struct App {
     pub should_quit: bool,
     pub status_text: String,
@@ -35,16 +38,11 @@ impl App {
         let chunks = Layout::default()
             .direction(Direction::Vertical)
             .constraints([
-                Constraint::Length(3),
+                Constraint::Length(0),
                 Constraint::Min(0),
                 Constraint::Length(1),
             ])
             .split(f.area());
-
-        // Title
-        let title = Paragraph::new("Git Raccoon")
-            .block(Block::default().borders(Borders::ALL).title(" Meow "));
-        f.render_widget(title, chunks[0]);
 
         // Main content
         match self.current_screen {
@@ -52,34 +50,17 @@ impl App {
             CurrentScreen::Repository => self.draw_repository_view(f, chunks[1]),
             CurrentScreen::RecentPopup => self.draw_recent_repositories_popup(f, chunks[1]),
         }
-
-        // Footer
-        let help_text = match self.current_screen {
-            CurrentScreen::Home => " ↑↓ / jk = move • ⏎ = select • q = quit ",
-            CurrentScreen::Repository => " Esc / q = back to home ",
-            CurrentScreen::RecentPopup => " Any key = close ",
-        };
-
-        let help = Paragraph::new(help_text)
-            .style(Style::default().fg(Color::DarkGray))
-            .alignment(HorizontalAlignment::Center);
-
-        f.render_widget(help, chunks[2]);
     }
 
     fn draw_home_view(&self, f: &mut Frame, area: Rect) {
-        let horizontal = Layout::default()
-            .direction(Direction::Horizontal)
-            .constraints([Constraint::Percentage(50), Constraint::Percentage(50)])
-            .split(area);
+        // Set up frame layout and get the bottom chunks
+        let chunks = home_layout::split_home_area(area);
 
-        // Left: Johnny ASCII
-        let johnny = Paragraph::new(JOHNNY)
-            .alignment(HorizontalAlignment::Center)
-            .block(Block::default().borders(Borders::NONE));
-        f.render_widget(johnny, horizontal[0]);
+        banner::draw(f, area);
 
-        // Right: Menu
+        // Left: Recent Repositories
+        
+        // Right: Main Menu
         let menu_lines: Vec<String> = HOME_MENU_OPTIONS
             .iter()
             .enumerate()
@@ -96,7 +77,7 @@ impl App {
             .alignment(HorizontalAlignment::Center)
             .block(Block::default().borders(Borders::ALL).title(" Main Menu "));
 
-        f.render_widget(menu, horizontal[1]);
+        f.render_widget(menu, chunks[1]);
     }
 
     fn draw_repository_view(&self, f: &mut Frame, area: Rect) {

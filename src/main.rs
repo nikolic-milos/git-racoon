@@ -1,9 +1,11 @@
 use app::App;
 use crossterm::event::{self, Event};
+
 use ratatui::DefaultTerminal;
 
 mod app;
-mod assets;
+mod banner;
+mod home_layout;
 
 fn main() -> color_eyre::Result<()> {
     color_eyre::install()?;

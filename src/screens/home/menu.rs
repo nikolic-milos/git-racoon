@@ -29,20 +29,30 @@ pub fn draw_main_menu(f: &mut Frame, area: Rect, cursor: usize, is_active: bool)
     f.render_widget(menu, area);
 }
 
-pub fn draw_recent_repos(f: &mut Frame, area: Rect, cursor: usize, is_active: bool) {
-    let repos = ["Repo 1", "Repo 2", "Repo 3", "Repo 4", "Repo 5"];
+pub fn draw_recent_repos(
+    f: &mut Frame,
+    area: Rect,
+    cursor: usize,
+    is_active: bool,
+    recent_repos: &[String],
+) {
+    let lines = if recent_repos.is_empty() {
+        vec!["No recent repositories.".to_string()]
+    } else {
+        recent_repos
+            .iter()
+            .take(crate::screens::home::state::RECENT_REPOS_MAX_SIZE)
+            .enumerate()
+            .map(|(i, repo)| {
+                if is_active && i == cursor {
+                    format!("► {} ◄", repo)
+                } else {
+                    format!("  {}  ", repo)
+                }
+            })
+            .collect()
+    };
 
-    let lines: Vec<String> = repos
-        .iter()
-        .enumerate()
-        .map(|(i, &repo)| {
-            if is_active && i == cursor {
-                format!("► {} ◄", repo)
-            } else {
-                format!("  {}  ", repo)
-            }
-        })
-        .collect();
     let recent = Paragraph::new(lines.join("\n"))
         .alignment(HorizontalAlignment::Center)
         .block(

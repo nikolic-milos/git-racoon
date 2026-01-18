@@ -4,8 +4,7 @@ use crossterm::event::{self, Event};
 use ratatui::DefaultTerminal;
 
 mod app;
-mod banner;
-mod home_layout;
+mod screens;
 
 fn main() -> color_eyre::Result<()> {
     color_eyre::install()?;

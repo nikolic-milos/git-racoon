@@ -513,7 +513,6 @@ dependencies = [
  "crossterm",
  "git2",
  "ratatui",
- "tui-banner",
 ]
 
 [[package]]
@@ -1758,12 +1757,6 @@ dependencies = [
  "thread_local",
  "tracing-core",
 ]
-
-[[package]]
-name = "tui-banner"
-version = "0.2.3"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "9d1b7ab5b95cec8f101330c65e98ae299d1a406bce12b9b5bf5208e35e1a40b8"
 
 [[package]]
 name = "typenum"

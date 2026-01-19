@@ -13,3 +13,5 @@ pub fn draw(f: &mut Frame, area: Rect) {
         .alignment(Alignment::Center);
     f.render_widget(para, area);
 }
+
+// https://gemini.google.com/app/389bde6d554b6552

@@ -14,34 +14,7 @@ impl HomeWindow {
     }
 
     pub fn draw(&self, f: &mut Frame, area: Rect) {
-        let [
-            banner_area,
-            tip_area,
-            controls_area,
-            login_status_area,
-            recent_repo_area,
-            main_menu_area,
-        ] = layout::split_home_area(area);
-
-        banner::draw(f, banner_area);
-        tip::draw(f, tip_area);
-        controls::draw(f, controls_area);
-        login_status::draw(f, login_status_area);
-
-        menu::draw_main_menu(
-            f,
-            main_menu_area,
-            self.main_cursor_index,
-            self.active_tab == HomeWindowTab::MainMenu,
-        );
-
-        menu::draw_recent_repos(
-            f,
-            recent_repo_area,
-            self.recent_cursor_index,
-            self.active_tab == HomeWindowTab::RecentRepositories,
-            &self.recent_repositories,
-        );
+        layout::apply(f, self);
     }
 
     pub fn handle_keys(&mut self, key: KeyEvent, should_quit: &mut bool) {

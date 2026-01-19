@@ -1,7 +1,6 @@
 use crate::screens::home::{
-    banner, controls, login_status, menu,
+    activity_feed, banner, controls, login_status, menu,
     state::{HomeWindow, HomeWindowTab},
-    tip,
 };
 use ratatui::prelude::*;
 
@@ -10,22 +9,26 @@ use ratatui::prelude::*;
 
 Home:
 -----------------------
-| upper_split[0] | 30% - Banner
+|   initial_split[0]  | 30% - Banner
 |---------------------|
-| upper_split[1] | 35% - Menus
-|---------------------|
-| upper_split[2] | 10% - Tip of the day
-|---------------------|
-| upper_split[3] | 20% - Navigation and login status
+|   initial_split[2]  | 65% - Main content area
 -----------------------
 
-upper_split[1]:
+
+initial_split[2]:
 -------------------------------------------------------
-| bottom_vertical_split[0] | bottom_vertical_split[1] |
+| content_area_split[0]    |    content_area_split[1] |
 -------------------------------------------------------
             50%                        50%
              |                          |
-     Recent Repositories            Main Menu
+           Menus                  Activity Feed
+
+content_area_split[0]:
+-------------------------
+|   menu_area_split [0] | 50% - Main Menu
+|-----------------------|
+|   menu_area_split [1] | 50% - Recent Repositories
+-------------------------
 */
 pub fn apply(f: &mut Frame, state: &HomeWindow) {
     let terminal_rect = f.area();
@@ -37,26 +40,31 @@ pub fn apply(f: &mut Frame, state: &HomeWindow) {
         height: upper_height,
     };
 
-    // 1. Splits the home into 4 vertical areas and 2 gaps
-    let upper_split = Layout::default()
+    // 1. Split the home into 4 vertical areas and 2 gaps
+    let initial_split = Layout::default()
         .direction(Direction::Vertical)
         .constraints([
-            Constraint::Percentage(25), // Banner
+            Constraint::Percentage(30), // [0] Banner
             Constraint::Length(1),      // Gap
-            Constraint::Percentage(20), // Menus
-            Constraint::Length(1),      // Gap
-            Constraint::Percentage(15), // Tip
+            Constraint::Percentage(65), // [2] Menus & Activity
+            Constraint::Length(3),      // Gap
             Constraint::Min(0),
         ])
         .split(upper_rect);
 
-    // 2. Splits menus into left/right halves
-    let menu_split = Layout::default()
+    // 2. Split the main content area into left/right halves
+    let content_area_split = Layout::default()
         .direction(Direction::Horizontal)
         .constraints([Constraint::Percentage(50), Constraint::Percentage(50)])
-        .split(upper_split[2]);
+        .split(initial_split[2]);
 
-    // 3. Sets the calculation for the fixed position of the navigation bar (second to last line in the terminal)
+    // 3. Split the left half into top/bottom halves
+    let menu_area_split = Layout::default()
+        .direction(Direction::Vertical)
+        .constraints([Constraint::Percentage((50)), Constraint::Percentage((50))])
+        .split(content_area_split[0]);
+
+    // 4. Sets the calculation for the fixed position of the navigation bar (second to last line in the terminal)
     let controls_rect = Rect {
         x: 0,
         y: terminal_rect.height - 2,
@@ -64,7 +72,7 @@ pub fn apply(f: &mut Frame, state: &HomeWindow) {
         height: 1,
     };
 
-    // 4. Sets the calculation for the fixed position of the login stats (last lne in the terminal)
+    // 5. Sets the calculation for the fixed position of the login stats (last lne in the terminal)
     let status_rect = Rect {
         x: 0,
         y: terminal_rect.height - 1,
@@ -72,19 +80,19 @@ pub fn apply(f: &mut Frame, state: &HomeWindow) {
         height: 1,
     };
 
-    banner::draw(f, upper_split[0]);
-    tip::draw(f, upper_split[4]);
+    banner::draw(f, initial_split[0]);
+    activity_feed::draw(f, content_area_split[1], &state.recent_activity);
     controls::draw(f, controls_rect);
     login_status::draw(f, status_rect);
     menu::draw_main_menu(
         f,
-        menu_split[1],
+        menu_area_split[0],
         state.main_cursor_index,
         state.active_tab == HomeWindowTab::MainMenu,
     );
     menu::draw_recent_repos(
         f,
-        menu_split[0],
+        menu_area_split[1],
         state.recent_cursor_index,
         state.active_tab == HomeWindowTab::RecentRepositories,
         &state.recent_repositories,

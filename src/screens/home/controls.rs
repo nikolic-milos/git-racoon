@@ -5,7 +5,7 @@ use ratatui::{
     widgets::Paragraph,
 };
 pub fn draw(f: &mut Frame, area: Rect) {
-    let text = "↑↓←→: Navigate | Tab: Switch | Q: Quit | L: Login";
+    let text = "↑↓←→: Navigate | tab: Switch | q: Quit | l: Login";
     let para =
         Paragraph::new(text).style(Style::default().bg(Color::White).fg(Color::Black).bold());
     f.render_widget(para, area);

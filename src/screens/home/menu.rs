@@ -1,3 +1,4 @@
+use crate::screens::home::state::RECENT_REPOS_MAX_LINES;
 use ratatui::{
     prelude::*,
     widgets::{Block, Borders, Paragraph},
@@ -18,6 +19,7 @@ pub fn draw_main_menu(f: &mut Frame, area: Rect, cursor: usize, is_active: bool)
             }
         })
         .collect();
+
     let menu = Paragraph::new(lines.join("\n"))
         .alignment(HorizontalAlignment::Center)
         .block(Block::default().borders(Borders::ALL).title(" Main Menu "))
@@ -41,7 +43,7 @@ pub fn draw_recent_repos(
     } else {
         recent_repos
             .iter()
-            .take(crate::screens::home::state::RECENT_REPOS_MAX_SIZE)
+            .take(RECENT_REPOS_MAX_LINES)
             .enumerate()
             .map(|(i, repo)| {
                 if is_active && i == cursor {

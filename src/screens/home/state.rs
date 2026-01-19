@@ -4,7 +4,8 @@ pub enum HomeWindowTab {
     RecentRepositories,
 }
 
-pub const RECENT_REPOS_MAX_SIZE: usize = 5;
+pub const RECENT_REPOS_MAX_LINES: usize = 5;
+pub const ACTIVITY_FEED_MAX_LINES: usize = 10;
 
 #[derive(Debug, PartialEq, Clone)]
 pub struct HomeWindow {
@@ -12,4 +13,5 @@ pub struct HomeWindow {
     pub main_cursor_index: usize,
     pub recent_cursor_index: usize,
     pub recent_repositories: Vec<String>,
+    pub recent_activity: Vec<String>,
 }

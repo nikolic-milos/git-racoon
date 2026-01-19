@@ -1,5 +1,5 @@
 use crate::screens::home::state::{HomeWindow, HomeWindowTab};
-use crate::screens::home::{banner, controls, layout, login_status, menu, tip};
+use crate::screens::home::{activity_feed, banner, controls, layout, login_status, menu};
 use crossterm::event::{KeyCode, KeyEvent};
 use ratatui::{Frame, layout::Rect};
 
@@ -10,6 +10,7 @@ impl HomeWindow {
             main_cursor_index: 0,
             recent_cursor_index: 0,
             recent_repositories: Vec::new(),
+            recent_activity: Vec::new(),
         }
     }
 

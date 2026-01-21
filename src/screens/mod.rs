@@ -1,7 +1,16 @@
+use crossterm::event::KeyEvent;
+use ratatui::{Frame, layout::Rect};
+
 pub mod home;
 
-// Global active screen
-#[derive(Debug, PartialEq, Clone)]
-pub enum ActiveWindow {
-    Home(crate::screens::home::state::HomeWindow),
+pub trait Screen {
+    fn draw(&self, f: &mut Frame, area: Rect);
+    fn handle_keys(&mut self, key: KeyEvent) -> Action;
+}
+
+pub enum Action {
+    None,
+    NavigateTo,
+    GoBack,
+    Quit,
 }

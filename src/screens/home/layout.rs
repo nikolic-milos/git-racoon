@@ -4,6 +4,15 @@ use crate::screens::home::{
 };
 use ratatui::prelude::*;
 
+pub struct HomeLayout {
+    pub banner: Rect,
+    pub main_menu: Rect,
+    pub recent_repos: Rect,
+    pub activity_feed: Rect,
+    pub controls: Rect,
+    pub login_status: Rect,
+}
+
 // Splits the home area into chunks and returns them so they can be used for positioning components
 /*
 
@@ -23,14 +32,14 @@ initial_split[2]:
              |                          |
            Menus                  Activity Feed
 
-content_area_split[0]:
+content_area_split[0]:apply
 -------------------------
 |   menu_area_split [0] | 50% - Main Menu
 |-----------------------|
 |   menu_area_split [1] | 50% - Recent Repositories
 -------------------------
 */
-pub fn apply(f: &mut Frame, state: &HomeWindow) {
+pub fn calculate_layout(f: &mut Frame) -> HomeLayout {
     let terminal_rect = f.area();
     let upper_height = terminal_rect.height.saturating_sub(2);
     let upper_rect = Rect {
@@ -80,21 +89,12 @@ pub fn apply(f: &mut Frame, state: &HomeWindow) {
         height: 1,
     };
 
-    banner::draw(f, initial_split[0]);
-    activity_feed::draw(f, content_area_split[1], &state.recent_activity);
-    controls::draw(f, controls_rect);
-    login_status::draw(f, status_rect);
-    menu::draw_main_menu(
-        f,
-        menu_area_split[0],
-        state.main_cursor_index,
-        state.active_tab == HomeWindowTab::MainMenu,
-    );
-    menu::draw_recent_repos(
-        f,
-        menu_area_split[1],
-        state.recent_cursor_index,
-        state.active_tab == HomeWindowTab::RecentRepositories,
-        &state.recent_repositories,
-    );
+    return HomeLayout {
+        banner: (content_area_split[0]),
+        main_menu: (menu_area_split[0]),
+        recent_repos: (menu_area_split[1]),
+        activity_feed: (content_area_split[1]),
+        controls: (controls_rect),
+        login_status: (status_rect),
+    };
 }

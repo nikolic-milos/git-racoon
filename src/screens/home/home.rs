@@ -6,8 +6,6 @@ impl HomeWindow {
             active_tab: HomeWindowTab::MainMenu,
             main_cursor_index: 0,
             recent_cursor_index: 0,
-            recent_repositories: Vec::new(),
-            recent_activity: Vec::new(),
         }
     }
 }

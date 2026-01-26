@@ -1,6 +1,9 @@
 use crate::{
     components::command_bar::{CommandBar, CommandBarAction},
-    screens::{Action, Screen, home::state::HomeWindow},
+    screens::{
+        self, Action, Screen,
+        home::{home, state::HomeWindow},
+    },
 };
 use crossterm::event::KeyEvent;
 use ratatui::prelude::*;
@@ -16,7 +19,7 @@ impl App {
     pub fn new() -> Self {
         App {
             should_quit: false,
-            screen_stack: vec![],
+            screen_stack: vec![Box::new(HomeWindow::new())],
             status_text: "Current directory is not a git repository".to_string(),
             command_bar: None,
         }
@@ -52,11 +55,17 @@ impl App {
                     self.command_bar = None;
                 }
                 CommandBarAction::Submit(input) => {
-                    // TODO: Implement the submit command..
+                    // TODO: Implement submit command..
                     self.command_bar = None
                 }
                 CommandBarAction::Continue => {}
             }
+            return;
+        }
+
+        if let Some(screen) = self.screen_stack.last_mut() {
+            let action = screen.handle_keys(key);
+            self.handle_action(action);
         }
     }
 
@@ -69,9 +78,7 @@ impl App {
                 }
             }
             Action::None => {}
-            Action::NavigateTo => {
-                // TODO
-            }
+            Action::NavigateTo => {}
         }
     }
 }

@@ -1,6 +1,7 @@
 pub mod activity_feed;
 pub mod banner;
 pub mod controls;
+pub mod home;
 pub mod layout;
 pub mod login_status;
 pub mod menu;
@@ -18,9 +19,15 @@ impl Screen for HomeWindow {
         match layout::calculate_layout(f) {
             Ok(layout) => {
                 banner::draw(f, layout.banner);
-                menu::draw_main_menu(f, layout.main_menu, 0, true);
-                menu::draw_recent_repos(f, layout.recent_repos, 0, true, &self.recent_repositories);
-                // activity_feed::draw(f, layout.activity_feed, self.recent_activity<>);
+                menu::draw_main_menu(f, layout.main_menu, self.main_cursor_index, true);
+                menu::draw_recent_repos(
+                    f,
+                    layout.recent_repos,
+                    self.recent_cursor_index,
+                    true,
+                    &[],
+                );
+                activity_feed::draw(f, layout.activity_feed, &[]);
                 controls::draw(f, layout.controls);
                 login_status::draw(f, layout.login_status);
             }

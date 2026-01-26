@@ -2,12 +2,9 @@ use crossterm::event::{KeyCode, KeyEvent};
 use ratatui::Frame;
 use ratatui::layout::Rect;
 use ratatui::style::{Color, Style, Stylize};
-use ratatui::widgets::Paragraph;
-
-use crate::screens::Action;
+use ratatui::widgets::{Block, Borders, Paragraph};
 
 pub struct CommandBar {
-    pub is_active: bool,
     pub input: String,
     pub selected_index: usize,
     pub suggestions: Vec<String>,
@@ -16,13 +13,12 @@ pub struct CommandBar {
 pub enum CommandBarAction {
     Continue,
     Cancel,
-    Submit(String),
+    Submit,
 }
 
 impl CommandBar {
     pub fn new() -> Self {
         CommandBar {
-            is_active: false,
             input: String::new(),
             selected_index: 0,
             suggestions: Vec::new(),
@@ -33,15 +29,16 @@ impl CommandBar {
     pub fn draw(&self, f: &mut Frame, area: Rect) {
         let input_text = format!("> {}", self.input);
         let line = Paragraph::new(input_text)
+            .block(Block::default().borders(Borders::BOTTOM))
             .style(Style::default())
-            .fg(Color::Yellow);
+            .fg(Color::White);
         f.render_widget(line, area);
     }
 
     pub fn handle_key(&mut self, key: KeyEvent) -> CommandBarAction {
         match key.code {
             KeyCode::Esc => CommandBarAction::Cancel,
-            KeyCode::Enter => CommandBarAction::Submit(self.input.clone()),
+            KeyCode::Enter => CommandBarAction::Submit,
             KeyCode::Char(c) => {
                 self.input.push(c);
                 CommandBarAction::Continue

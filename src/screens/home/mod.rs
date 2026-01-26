@@ -1,11 +1,11 @@
 pub mod activity_feed;
 pub mod banner;
 pub mod controls;
-pub mod home;
 pub mod layout;
 pub mod login_status;
 pub mod menu;
 pub mod state;
+pub mod view;
 
 use crate::screens::home::menu::HOME_MENU_OPTIONS;
 use crate::screens::home::state::*;
@@ -16,7 +16,7 @@ use ratatui::{Frame, layout::Rect};
 
 impl Screen for HomeWindow {
     fn draw(&self, f: &mut Frame, area: Rect) {
-        match layout::calculate_layout(f) {
+        match layout::calculate_layout(area, f.area().height) {
             Ok(layout) => {
                 banner::draw(f, layout.banner);
                 menu::draw_main_menu(f, layout.main_menu, self.main_cursor_index, true);

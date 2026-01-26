@@ -1,17 +1,13 @@
 use crate::{
     components::command_bar::{CommandBar, CommandBarAction},
-    screens::{
-        self, Action, Screen,
-        home::{home, state::HomeWindow},
-    },
+    screens::{Action, Screen, home::state::HomeWindow},
 };
-use crossterm::event::KeyEvent;
+use crossterm::event::{KeyCode, KeyEvent};
 use ratatui::prelude::*;
 
 pub struct App {
     pub should_quit: bool,
     pub screen_stack: Vec<Box<dyn Screen>>,
-    pub status_text: String,
     command_bar: Option<CommandBar>,
 }
 
@@ -20,14 +16,13 @@ impl App {
         App {
             should_quit: false,
             screen_stack: vec![Box::new(HomeWindow::new())],
-            status_text: "Current directory is not a git repository".to_string(),
             command_bar: None,
         }
     }
 
     pub fn draw(&self, f: &mut Frame) {
         if let Some(bar) = &self.command_bar {
-            let command_bar_height = 3;
+            let command_bar_height = 2;
             let chunks = ratatui::layout::Layout::default()
                 .direction(ratatui::layout::Direction::Vertical)
                 .constraints([
@@ -41,20 +36,23 @@ impl App {
             if let Some(screen) = self.screen_stack.last() {
                 screen.draw(f, chunks[1]);
             }
-        } else {
-            if let Some(screen) = self.screen_stack.last() {
-                screen.draw(f, f.area());
-            }
+        } else if let Some(screen) = self.screen_stack.last() {
+            screen.draw(f, f.area());
         }
     }
 
     pub fn handle_key(&mut self, key: KeyEvent) {
+        if key.code == KeyCode::Char('/') && self.command_bar.is_none() {
+            self.command_bar = Some(CommandBar::new());
+            return;
+        }
+
         if let Some(ref mut bar) = self.command_bar {
             match bar.handle_key(key) {
                 CommandBarAction::Cancel => {
                     self.command_bar = None;
                 }
-                CommandBarAction::Submit(input) => {
+                CommandBarAction::Submit => {
                     // TODO: Implement submit command..
                     self.command_bar = None
                 }

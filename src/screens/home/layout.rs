@@ -9,8 +9,8 @@ pub struct HomeLayout {
     pub login_status: Rect,
 }
 
-// Splits the home area into chunks and returns them so they can be used for positioning components
 /*
+Splits the home area into chunks and returns them so they can be used for positioning components
 
 Home:
 -----------------------
@@ -35,32 +35,30 @@ content_area_split[0]:
 |   menu_area_split [1] | 50% - Recent Repositories
 -------------------------
 */
-pub fn calculate_layout(f: &mut Frame) -> Result<HomeLayout, String> {
-    let terminal_rect = f.area();
-
-    const MIN_WIDTH: u16 = 60;
+pub fn calculate_layout(area: Rect, terminal_height: u16) -> Result<HomeLayout, String> {
+    const MIN_WIDTH: u16 = 20;
     const MIN_HEIGHT: u16 = 20;
 
-    if terminal_rect.height < MIN_HEIGHT || terminal_rect.width < MIN_WIDTH {
-        return Err(format!("Terminal window too small. Resize your terminal."));
+    if area.height < MIN_HEIGHT || area.width < MIN_WIDTH {
+        return Err("Terminal window too small. Resize your terminal.".to_string());
     }
 
-    let upper_height = terminal_rect.height.saturating_sub(2);
+    let upper_height = terminal_height.saturating_sub(2).saturating_sub(area.y);
     let upper_rect = Rect {
-        x: 0,
-        y: 0,
-        width: terminal_rect.width,
+        x: area.x,
+        y: area.y,
+        width: area.width,
         height: upper_height,
     };
 
-    // 1. Split the home into 4 vertical areas and 2 gaps
+    // 1. Split the home into 4 vertical areas and 2 gapsarea();
     let initial_split = Layout::default()
         .direction(Direction::Vertical)
         .constraints([
-            Constraint::Percentage(30), // [0] Banner
-            Constraint::Length(1),      // Gap
-            Constraint::Percentage(65), // [2] Menus & Activity
-            Constraint::Length(3),      // Gap
+            Constraint::Length(8), // [0] Banner
+            Constraint::Length(1),
+            Constraint::Percentage(90), // [2] Menus & Activity
+            Constraint::Length(1),
             Constraint::Min(0),
         ])
         .split(upper_rect);
@@ -80,21 +78,21 @@ pub fn calculate_layout(f: &mut Frame) -> Result<HomeLayout, String> {
     // 4. Sets the calculation for the fixed position of the navigation bar (second to last line in the terminal)
     let controls_rect = Rect {
         x: 0,
-        y: terminal_rect.height - 2,
-        width: terminal_rect.width,
+        y: terminal_height - 2,
+        width: area.width,
         height: 1,
     };
 
-    // 5. Sets the calculation for the fixed position of the login stats (last lne in the terminal)
+    // 5. Sets the calculation for the fixed position of the login stats (last line in the terminal)
     let status_rect = Rect {
         x: 0,
-        y: terminal_rect.height - 1,
-        width: terminal_rect.width,
+        y: terminal_height - 1,
+        width: area.width,
         height: 1,
     };
 
     Ok(HomeLayout {
-        banner: initial_split[0], // ← Correct source
+        banner: initial_split[0],
         main_menu: menu_area_split[0],
         recent_repos: menu_area_split[1],
         activity_feed: content_area_split[1],

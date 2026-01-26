@@ -2,6 +2,7 @@ use crossterm::event::KeyEvent;
 use ratatui::{Frame, layout::Rect};
 
 pub mod home;
+pub mod popups;
 
 pub trait Screen {
     fn draw(&self, f: &mut Frame, area: Rect);

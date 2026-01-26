@@ -12,6 +12,4 @@ pub struct HomeWindow {
     pub active_tab: HomeWindowTab,
     pub main_cursor_index: usize,
     pub recent_cursor_index: usize,
-    pub recent_repositories: Vec<String>,
-    pub recent_activity: Vec<String>,
 }

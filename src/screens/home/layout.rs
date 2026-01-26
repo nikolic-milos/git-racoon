@@ -1,7 +1,3 @@
-use crate::screens::home::{
-    activity_feed, banner, controls, login_status, menu,
-    state::{HomeWindow, HomeWindowTab},
-};
 use ratatui::prelude::*;
 
 pub struct HomeLayout {
@@ -30,17 +26,25 @@ initial_split[2]:
 -------------------------------------------------------
             50%                        50%
              |                          |
-           Menus                  Activity Feed
+           Menus:                   Activity Feed
 
-content_area_split[0]:apply
+content_area_split[0]:
 -------------------------
 |   menu_area_split [0] | 50% - Main Menu
 |-----------------------|
 |   menu_area_split [1] | 50% - Recent Repositories
 -------------------------
 */
-pub fn calculate_layout(f: &mut Frame) -> HomeLayout {
+pub fn calculate_layout(f: &mut Frame) -> Result<HomeLayout, String> {
     let terminal_rect = f.area();
+
+    const MIN_WIDTH: u16 = 60;
+    const MIN_HEIGHT: u16 = 20;
+
+    if terminal_rect.height < MIN_HEIGHT || terminal_rect.width < MIN_WIDTH {
+        return Err(format!("Terminal window too small. Resize your terminal."));
+    }
+
     let upper_height = terminal_rect.height.saturating_sub(2);
     let upper_rect = Rect {
         x: 0,
@@ -70,7 +74,7 @@ pub fn calculate_layout(f: &mut Frame) -> HomeLayout {
     // 3. Split the left half into top/bottom halves
     let menu_area_split = Layout::default()
         .direction(Direction::Vertical)
-        .constraints([Constraint::Percentage((50)), Constraint::Percentage((50))])
+        .constraints([Constraint::Percentage(50), Constraint::Percentage(50)])
         .split(content_area_split[0]);
 
     // 4. Sets the calculation for the fixed position of the navigation bar (second to last line in the terminal)
@@ -89,12 +93,12 @@ pub fn calculate_layout(f: &mut Frame) -> HomeLayout {
         height: 1,
     };
 
-    return HomeLayout {
-        banner: (content_area_split[0]),
-        main_menu: (menu_area_split[0]),
-        recent_repos: (menu_area_split[1]),
-        activity_feed: (content_area_split[1]),
-        controls: (controls_rect),
-        login_status: (status_rect),
-    };
+    Ok(HomeLayout {
+        banner: initial_split[0], // ← Correct source
+        main_menu: menu_area_split[0],
+        recent_repos: menu_area_split[1],
+        activity_feed: content_area_split[1],
+        controls: controls_rect,
+        login_status: status_rect,
+    })
 }

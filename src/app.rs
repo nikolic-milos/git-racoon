@@ -1,5 +1,7 @@
 use crate::{
+    auth::{self, github::delete_token},
     components::command_bar::{CommandBar, CommandBarAction},
+    context::Context,
     screens::{Action, Screen, home::state::HomeWindow},
 };
 use crossterm::event::{KeyCode, KeyEvent};
@@ -9,6 +11,7 @@ pub struct App {
     pub should_quit: bool,
     pub screen_stack: Vec<Box<dyn Screen>>,
     command_bar: Option<CommandBar>,
+    pub auth_token: Option<String>,
 }
 
 impl App {
@@ -17,10 +20,11 @@ impl App {
             should_quit: false,
             screen_stack: vec![Box::new(HomeWindow::new())],
             command_bar: None,
+            auth_token: auth::github::load_token().unwrap_or(None),
         }
     }
 
-    pub fn draw(&self, f: &mut Frame) {
+    pub fn draw(&self, f: &mut Frame, ctx: &Context) {
         if let Some(bar) = &self.command_bar {
             let command_bar_height = 2;
             let chunks = ratatui::layout::Layout::default()
@@ -34,10 +38,10 @@ impl App {
             bar.draw(f, chunks[0]);
 
             if let Some(screen) = self.screen_stack.last() {
-                screen.draw(f, chunks[1]);
+                screen.draw(f, chunks[1], ctx);
             }
         } else if let Some(screen) = self.screen_stack.last() {
-            screen.draw(f, f.area());
+            screen.draw(f, f.area(), ctx);
         }
     }
 
@@ -62,7 +66,10 @@ impl App {
         }
 
         if let Some(screen) = self.screen_stack.last_mut() {
-            let action = screen.handle_keys(key);
+            let ctx = Context {
+                auth_token: self.auth_token.clone(),
+            };
+            let action = screen.handle_keys(key, &ctx);
             self.handle_action(action);
         }
     }
@@ -77,6 +84,16 @@ impl App {
             }
             Action::None => {}
             Action::NavigateTo => {}
+            Action::Authenticate => {}
+            Action::AuthSuccess(token) => {
+                self.auth_token = Some(token);
+                self.screen_stack.pop();
+            }
+            Action::Logout => {
+                self.auth_token = None;
+                let _ = auth::github::delete_token();
+            }
+            _ => {}
         }
     }
 }

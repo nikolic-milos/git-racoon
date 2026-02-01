@@ -7,6 +7,7 @@ pub mod menu;
 pub mod state;
 pub mod view;
 
+use crate::context::Context;
 use crate::screens::home::menu::HOME_MENU_OPTIONS;
 use crate::screens::home::state::*;
 use crate::screens::{Action, Screen};
@@ -15,7 +16,7 @@ use ratatui::widgets::Paragraph;
 use ratatui::{Frame, layout::Rect};
 
 impl Screen for HomeWindow {
-    fn draw(&self, f: &mut Frame, area: Rect) {
+    fn draw(&self, f: &mut Frame, area: Rect, ctx: &Context) {
         match layout::calculate_layout(area, f.area().height) {
             Ok(layout) => {
                 banner::draw(f, layout.banner);
@@ -41,7 +42,7 @@ impl Screen for HomeWindow {
         }
     }
 
-    fn handle_keys(&mut self, key: KeyEvent) -> Action {
+    fn handle_keys(&mut self, key: KeyEvent, ctx: &Context) -> Action {
         match key.code {
             KeyCode::Tab => {
                 self.active_tab = match self.active_tab {

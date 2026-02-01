@@ -1,12 +1,14 @@
 use crossterm::event::KeyEvent;
 use ratatui::{Frame, layout::Rect};
 
+use crate::context::{self, Context};
+
 pub mod home;
 pub mod popups;
 
 pub trait Screen {
-    fn draw(&self, f: &mut Frame, area: Rect);
-    fn handle_keys(&mut self, key: KeyEvent) -> Action;
+    fn draw(&self, f: &mut Frame, area: Rect, ctx: &Context);
+    fn handle_keys(&mut self, key: KeyEvent, ctx: &Context) -> Action;
 }
 
 pub enum Action {
@@ -14,4 +16,7 @@ pub enum Action {
     NavigateTo,
     GoBack,
     Quit,
+    Authenticate,
+    AuthSuccess(String),
+    Logout,
 }

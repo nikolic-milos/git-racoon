@@ -1,3 +1,4 @@
+use crate::auth::auth_error::AuthError;
 use crate::{
     auth::{self, github::delete_token},
     components::command_bar::{CommandBar, CommandBarAction},
@@ -6,12 +7,14 @@ use crate::{
 };
 use crossterm::event::{KeyCode, KeyEvent};
 use ratatui::prelude::*;
+use tokio::sync::mpsc;
 
 pub struct App {
     pub should_quit: bool,
     pub screen_stack: Vec<Box<dyn Screen>>,
     command_bar: Option<CommandBar>,
     pub auth_token: Option<String>,
+    auth_rx: Option<mpsc::Receiver<Result<String, AuthError>>>,
 }
 
 impl App {
@@ -21,6 +24,7 @@ impl App {
             screen_stack: vec![Box::new(HomeWindow::new())],
             command_bar: None,
             auth_token: auth::github::load_token().unwrap_or(None),
+            auth_rx: None,
         }
     }
 
@@ -74,7 +78,7 @@ impl App {
         }
     }
 
-    fn handle_action(&mut self, action: Action) {
+    pub fn handle_action(&mut self, action: Action) {
         match action {
             Action::Quit => self.should_quit = true,
             Action::GoBack => {
@@ -84,7 +88,7 @@ impl App {
             }
             Action::None => {}
             Action::NavigateTo => {}
-            Action::Authenticate => {}
+            Action::Authenticate => self.start_auth(),
             Action::AuthSuccess(token) => {
                 self.auth_token = Some(token);
                 self.screen_stack.pop();
@@ -95,5 +99,31 @@ impl App {
             }
             _ => {}
         }
+    }
+
+    fn start_auth(&mut self) {
+        let (tx, rx) = mpsc::channel(1);
+        self.auth_rx = Some(rx);
+
+        tokio::spawn(async move {
+            let result = auth::github::authenticate_github().await;
+            let _ = tx.send(result).await;
+        });
+    }
+
+    pub fn poll_auth(&mut self) -> Option<Action> {
+        if let Some(rx) = &mut self.auth_rx {
+            match rx.try_recv() {
+                Ok(Ok(token)) => return Some(Action::AuthSuccess(token)),
+                Ok(Err(e)) => {
+                    eprintln!("Auth error: {}", e);
+                }
+                Err(mpsc::error::TryRecvError::Empty) => {}
+                Err(mpsc::error::TryRecvError::Disconnected) => {
+                    self.auth_rx = None;
+                }
+            }
+        }
+        None
     }
 }

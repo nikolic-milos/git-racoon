@@ -30,7 +30,7 @@ impl Screen for HomeWindow {
                 );
                 activity_feed::draw(f, layout.activity_feed, &[]);
                 controls::draw(f, layout.controls);
-                login_status::draw(f, layout.login_status);
+                login_status::draw(f, layout.login_status, ctx);
             }
 
             Err(msg) => {
@@ -114,7 +114,13 @@ impl Screen for HomeWindow {
 
             KeyCode::Char('q') => Action::Quit,
             KeyCode::Esc => Action::GoBack,
-
+            KeyCode::Char('l') => {
+                if !ctx.is_authenticated() {
+                    Action::Authenticate
+                } else {
+                    Action::Logout
+                }
+            }
             _ => Action::None,
         }
     }

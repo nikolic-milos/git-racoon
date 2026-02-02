@@ -33,6 +33,10 @@ async fn run(mut terminal: DefaultTerminal) -> color_eyre::Result<()> {
             app.draw(frame, &ctx)
         })?;
 
+        if let Some(action) = app.poll_auth() {
+            app.handle_action(action);
+        }
+
         if let Some(Ok(Event::Key(key))) = stream.next().await
             && key.kind == KeyEventKind::Press
         {

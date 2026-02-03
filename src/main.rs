@@ -33,6 +33,8 @@ async fn run(mut terminal: DefaultTerminal) -> color_eyre::Result<()> {
             app.draw(frame, &ctx)
         })?;
 
+        app.poll_device_code();
+
         if let Some(action) = app.poll_auth() {
             app.handle_action(action);
         }

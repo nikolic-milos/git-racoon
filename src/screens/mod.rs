@@ -4,7 +4,6 @@ use ratatui::{Frame, layout::Rect};
 use crate::context::{self, Context};
 
 pub mod home;
-pub mod popups;
 
 pub trait Screen {
     fn draw(&self, f: &mut Frame, area: Rect, ctx: &Context);

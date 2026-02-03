@@ -5,6 +5,7 @@ use serde::Deserialize;
 use serde_json::Value;
 use tokio::time::Duration;
 
+pub const GITHUB_VERIFICATION_URL: &str = "https://github.com/device";
 const GITHUB_CLIENT_ID: &str = "Ov23liRkELhLXqS82Irs";
 const SERVICE_NAME: &str = "GitRaccoon";
 const USERNAME: &str = "github_token";
@@ -38,7 +39,7 @@ pub struct TokenResponse {
     scope: String,
 }
 
-async fn request_device_code() -> Result<(String, String, u64), AuthError> {
+pub async fn request_device_code() -> Result<(String, String, u64), AuthError> {
     let client = Client::new();
 
     let response = client
